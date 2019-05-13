@@ -3,29 +3,37 @@
 (Mở khoá tài khoản) as (MKTK)
 (Nhập thông tin cá nhân) as (TTCN)
 note "+Số ĐT đăng ký ZaloPay\n+Họ tên\n+Số CMND(passboard,..)\n+Ngày sinh\n+GiớiTính\n+Email\n+Địa chỉ\n+Ảnh CMND(Mặt trước+sau)\n+Ảnh chân dung\n+Ảnh giấy tờ khác(nếu CMND bị mờ)" as N_ThongTin
-note "Nguyên nhân cần:\n+User level3 có KYC thì dùng để check thông tin\n+User level2: dùng làm cơ sở để xử lý tranh chấp, cung cấp bằng chứng cho cơ quan điều tra nếu có kiện tụng sau này" as N_reason
+note "Nguyên nhân cần:\n+User level3 có KYC thì dùng để check thông tin\n+User level2: dùng làm cơ sở để xử lý tranh chấp\n cung cấp bằng chứng cho cơ quan điều tra nếu có kiện tụng sau này" as N_reason
 (TTCN) .. N_ThongTin
 (TTCN) . N_reason
 User -> (MKTK)
 
+rectangle Result_LKNganHang {
+  [LKNH]
+}
 [Có liên kết Ngân hàng?] as [LKNH]
 
 (MKTK) -> (TTCN)
-[Request user info by phone] as [UserInfo]
-(TTCN) ---> [UserInfo]
+rectangle Check_UserInfo {
+[UserInfo]
+}
+[Check user info by phone] as [UserInfo]
+(TTCN) --> Check_UserInfo
 
 
-(TTCN) --> [LKNH]
+Check_UserInfo --> Result_LKNganHang
 
 
 note "YES" as N1
-[LKNH] .. N1
+Result_LKNganHang .. N1
 
 (Chọn ngân hàng LK) as (NHLK)
-N1 --> (NHLK)
+N1 -> (NHLK)
 
 (Nhập thông tin ngân hàng) as (NhapTTNH)
-(NHLK) --> (NhapTTNH)
+note "TTNganHang:\n+Thẻ: 6 số đầu, 4 số cuối(or hình thẻ)\n+Account:3 số đầu, 4 số cuối\n+VCB:4 số cuối ĐT" as N_TTNganHang
+(NhapTTNH) .. N_TTNganHang
+(NHLK) -> (NhapTTNH)
 
 [Là chủ Thẻ/TK?] as [OwnerBank]
 (NhapTTNH) -> [OwnerBank]
@@ -40,54 +48,58 @@ N_Owner_no --> (Up CMND chủ thẻ/TK)
 
 note "YES" as N11
 note "NO" as N12
+rectangle Result_SoDu {
+  [SDZP]
+}
 [Có số dư?] as [SDZP]
 (Up ảnh sao kê giao dịch) as (SKGD)
 note "Up" as N_Up
 note "Ko Up" as N_KoUp
 (SKGD) .. N_Up
-N_Up --> [SDT]
+N_Up --> (OTP)
 (SKGD) .. N_KoUp
-N_KoUp --> [SDZP]
+N_KoUp --> Result_SoDu
 
 [PSGD] .. N11
 N11 --> (SKGD)
 
 [PSGD] .. N12
-N12 --> [SDZP]
+N12 --> Result_SoDu
 
 note "NO" as N2
-[LKNH] .. N2
-N2 --> [SDZP]
+Result_LKNganHang . N2
+N2 --> Result_SoDu
+
+rectangle Result_DichVu {
+  [DVSuDung]
+}
 
 note "YES" as n_sd_1
 note "NO" as n_sd_2
-[SDZP] .. n_sd_1
-n_sd_1 --> (Nhập số dư)
-(Nhập số dư) --> (Nguyồn gốc số dư)
-[SDZP] .. n_sd_2
-[Có còn dùng số ĐT đăng ký ZP?] as [SDT]
-n_sd_2 --> [DVSuDung]
+Result_SoDu .. n_sd_1
+(Nhập số dư) as (InPutSoDu)
+(Nguyồn gốc số dư) as (NgGocSoDu)
+note "Nguồn gốc SD:\n+Nạp tiền\n+Nhận lì xì\n+...\n+Không nhớ" as N_NGSD
+(NgGocSoDu) . N_NGSD
+
+n_sd_1 --> (InPutSoDu)
+(InPutSoDu) --> (NgGocSoDu)
+Result_SoDu .. n_sd_2
+note "Số dư:\n+ <100k\n+ 100-500k\n+ >500k(Nhập số dư)" as N_sodu
+(InPutSoDu) . N_sodu
+n_sd_2 --> Result_DichVu
 
 [Có sử dụng dịch vụ?] as [DVSuDung]
-(Nguyồn gốc số dư) -> [DVSuDung]
+(NgGocSoDu) --> Result_DichVu
 note "YES" as N_dv_yes
 note "NO" as N_dv_no
-[DVSuDung] .. N_dv_yes
+Result_DichVu .. N_dv_yes
 N_dv_yes --> (Chọn dịch vụ sử dụng)
-[DVSuDung] .. N_dv_no
-N_dv_no --> [SDT]
-(Chọn dịch vụ sử dụng) --> [SDT]
+Result_DichVu .. N_dv_no
+N_dv_no --> (OTP)
+(Chọn dịch vụ sử dụng) --> (OTP)
 
-
-note "YES" as n_sdt_1
-note "NO" as n_sdt_2
-
-[SDT] .. n_sdt_1
-n_sdt_1 --> (OTP)
-[SDT] .. n_sdt_2
-n_sdt_2 --> (Nhập số dt mới)
 (Nhập OTP) as (OTP)
-(Nhập số dt mới) --> (OTP)
 
 (OTP) --> (Done)
 
