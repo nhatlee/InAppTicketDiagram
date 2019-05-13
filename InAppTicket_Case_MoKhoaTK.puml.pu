@@ -1,0 +1,96 @@
+@startuml
+
+(Mở khoá tài khoản) as (MKTK)
+(Nhập thông tin cá nhân) as (TTCN)
+note "+Số ĐT đăng ký ZaloPay\n+Họ tên\n+Số CMND(passboard,..)\n+Ngày sinh\n+GiớiTính\n+Email\n+Địa chỉ\n+Ảnh CMND(Mặt trước+sau)\n+Ảnh chân dung\n+Ảnh giấy tờ khác(nếu CMND bị mờ)" as N_ThongTin
+note "Nguyên nhân cần:\n+User level3 có KYC thì dùng để check thông tin\n+User level2: dùng làm cơ sở để xử lý tranh chấp, cung cấp bằng chứng cho cơ quan điều tra nếu có kiện tụng sau này" as N_reason
+(TTCN) .. N_ThongTin
+(TTCN) . N_reason
+User -> (MKTK)
+
+[Có liên kết Ngân hàng?] as [LKNH]
+
+(MKTK) -> (TTCN)
+[Request user info by phone] as [UserInfo]
+(TTCN) ---> [UserInfo]
+
+
+(TTCN) --> [LKNH]
+
+
+note "YES" as N1
+[LKNH] .. N1
+
+(Chọn ngân hàng LK) as (NHLK)
+N1 --> (NHLK)
+
+(Nhập thông tin ngân hàng) as (NhapTTNH)
+(NHLK) --> (NhapTTNH)
+
+[Là chủ Thẻ/TK?] as [OwnerBank]
+(NhapTTNH) -> [OwnerBank]
+note "YES" as N_Owner_yes
+note "NO" as N_Owner_no
+[OwnerBank] .. N_Owner_yes
+N_Owner_yes -> [PSGD]
+[OwnerBank] .. N_Owner_no
+N_Owner_no --> (Up CMND chủ thẻ/TK)
+[Có phát sinh giao dịch với ngân hàng?] as [PSGD]
+(Up CMND chủ thẻ/TK) --> [PSGD]
+
+note "YES" as N11
+note "NO" as N12
+[Có số dư?] as [SDZP]
+(Up ảnh sao kê giao dịch) as (SKGD)
+note "Up" as N_Up
+note "Ko Up" as N_KoUp
+(SKGD) .. N_Up
+N_Up --> [SDT]
+(SKGD) .. N_KoUp
+N_KoUp --> [SDZP]
+
+[PSGD] .. N11
+N11 --> (SKGD)
+
+[PSGD] .. N12
+N12 --> [SDZP]
+
+note "NO" as N2
+[LKNH] .. N2
+N2 --> [SDZP]
+
+note "YES" as n_sd_1
+note "NO" as n_sd_2
+[SDZP] .. n_sd_1
+n_sd_1 --> (Nhập số dư)
+(Nhập số dư) --> (Nguyồn gốc số dư)
+[SDZP] .. n_sd_2
+[Có còn dùng số ĐT đăng ký ZP?] as [SDT]
+n_sd_2 --> [DVSuDung]
+
+[Có sử dụng dịch vụ?] as [DVSuDung]
+(Nguyồn gốc số dư) -> [DVSuDung]
+note "YES" as N_dv_yes
+note "NO" as N_dv_no
+[DVSuDung] .. N_dv_yes
+N_dv_yes --> (Chọn dịch vụ sử dụng)
+[DVSuDung] .. N_dv_no
+N_dv_no --> [SDT]
+(Chọn dịch vụ sử dụng) --> [SDT]
+
+
+note "YES" as n_sdt_1
+note "NO" as n_sdt_2
+
+[SDT] .. n_sdt_1
+n_sdt_1 --> (OTP)
+[SDT] .. n_sdt_2
+n_sdt_2 --> (Nhập số dt mới)
+(Nhập OTP) as (OTP)
+(Nhập số dt mới) --> (OTP)
+
+(OTP) --> (Done)
+
+@enduml
+
+ 

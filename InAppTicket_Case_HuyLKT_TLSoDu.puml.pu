@@ -1,0 +1,64 @@
+@startuml
+(Huỷ liên kết thẻ/TK & Thanh lý số dư) as (HuyLKT&TLSD)
+(Nhập thông tin cá nhân) as (InputTTCN)
+(Chọn ngân hàng liên kết) as (NHLienKet)
+(Nhập thông tin ngân hàng) as (TTNganHang)
+User -> (HuyLKT&TLSD)
+(HuyLKT&TLSD) -> (InputTTCN)
+(InputTTCN) --> (NHLienKet)
+(NHLienKet) --> (TTNganHang)
+[Chủ thẻ/tk?] as [OwnerBank]
+(TTNganHang) -> [OwnerBank]
+note "YES" as N_Owner_yes
+note "NO" as N_Owner_no
+[OwnerBank] .. N_Owner_yes
+[Có phát sinh giao dich với ngân hàng?] as [HaveBankTrans]
+N_Owner_yes -> [HaveBankTrans]
+
+[OwnerBank] .. N_Owner_no
+N_Owner_no --> (Up CMND chủ thẻ)
+(Up CMND chủ thẻ) -> [HaveBankTrans]
+
+note "YES" as N_trans_yes
+note "NO" as N_trans_no
+[HaveBankTrans] .. N_trans_yes
+[HaveBankTrans] .. N_trans_no
+N_trans_no --> (Nhập số dư)
+
+(Up ảnh lịch sử giao dịch) as (LSGiaoDich)
+note "Up" as N_up
+note "Ko Up" as N_KoUp
+N_trans_yes --> (LSGiaoDich)
+(LSGiaoDich) .. N_up
+
+(LSGiaoDich) .. N_KoUp
+
+N_KoUp --> (Nhập số dư)
+[Có sử dụng dịch vụ?] as [SDDichVu]
+(Chọn dịch vụ đã sử dụng) as (DVSuDung)
+note "YES" as N_dv_yes
+note "NO" as N_dv_no
+(Nhập số dư) --> (Nguồn gốc số dư)
+(Nguồn gốc số dư) --> [SDDichVu]
+[SDDichVu] .. N_dv_yes
+N_dv_yes --> (DVSuDung)
+(DVSuDung) --> [NewPhone]
+
+[SDDichVu] .. N_dv_no
+N_dv_no --> [NewPhone]
+
+
+[Còn sử dụng số ĐT liên kết ZP?] as [NewPhone]
+note "YES" as N_phone_yes
+note "NO" as N_phone_no
+N_up .. [NewPhone]
+
+[NewPhone] .. N_phone_yes
+(Input OTP) as (OTP)
+N_phone_yes --> (OTP)
+[NewPhone] .. N_phone_no
+N_phone_no --> (Nhập số ĐT mới)
+(Nhập số ĐT mới) --> (OTP)
+(OTP) --> (Done)
+
+@enduml

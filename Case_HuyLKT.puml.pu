@@ -1,0 +1,45 @@
+@startuml
+(Huỷ liên kết thẻ) as (HuyLKT)
+(Nhập thông tin cá nhân) as (TTCN)
+(Chọn ngân hàng LK) as (NHLK)
+[Còn sử dụng SĐT đăng ký ZaloPay?] as [SDT?]
+note "+Số ĐT đăng ký ZaloPay\n+Họ tên\n+Số CMND(passboard,..)\n+Ngày sinh\n+GiớiTính\n+Email\n+Địa chỉ\n+Ảnh CMND(Mặt trước+sau)\n+Ảnh chân dung\n+Ảnh giấy tờ khác(nếu CMND bị mờ)" as N_ThongTin
+note "Nguyên nhân cần:\n+User level3 có KYC thì dùng để check thông tin\n+User level2: dùng làm cơ sở để xử lý tranh chấp, cung cấp bằng chứng cho cơ quan điều tra nếu có kiện tụng sau này" as N_reason
+(TTCN) .. N_ThongTin
+(TTCN) . N_reason
+
+User -> (HuyLKT)
+(HuyLKT) -> (TTCN)
+
+(TTCN) ---> (NHLK)
+
+(Nhập thông tin ngân hàng) as (NhapTTNH)
+(NHLK) --> (NhapTTNH)
+
+[Là chủ Thẻ/TK?] as [OwnerBank]
+(NhapTTNH) -> [OwnerBank]
+note "YES" as N_Owner_yes
+note "NO" as N_Owner_no
+[OwnerBank] .. N_Owner_yes
+N_Owner_yes -> [SDT?]
+[OwnerBank] .. N_Owner_no
+N_Owner_no --> (Up CMND chủ thẻ/TK)
+
+(Up CMND chủ thẻ/TK) --> [SDT?]
+note "YES" as N_SDT_yes
+note "NO" as N_SDT_no
+
+[SDT?] .. N_SDT_yes
+N_SDT_yes --> (OTP)
+
+[SDT?] .. N_SDT_no
+N_SDT_no --> (Up hình mặt trước thẻ bắt buộc)
+(Up hình mặt trước thẻ bắt buộc) --> (Nhập số ĐT mới)
+(Nhập số ĐT mới) --> (OTP)
+
+
+(Nhập OTP) as (OTP)
+
+(Up CMND chủ thẻ/TK) --> (OTP)
+(OTP) --> (Done)
+@enduml

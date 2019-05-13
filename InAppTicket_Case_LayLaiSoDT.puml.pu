@@ -1,0 +1,22 @@
+@startuml
+
+(Lấy lại số DT) as (L_SDT)
+[Số ĐT này là của bạn dùng đăng ký ZaloPay?] as [IsYours]
+User --> (L_SDT)
+(L_SDT) --> [IsYours]
+note "YES" as N_sdt_yes
+note "NO" as N_sdt_no
+[IsYours] .. N_sdt_yes
+(Đi lại flow giống flow mở khoá TK) as (FlowMoKhoaTK)
+N_sdt_yes --> (FlowMoKhoaTK)
+
+note "*Bỏ step hỏi:\n+Còn dùng số ĐT liên kết ZP" as N_step_askPhone
+(FlowMoKhoaTK) .. N_step_askPhone
+
+[IsYours] .. N_sdt_no
+(Nhập thông tin cá nhân) as (TTCN)
+N_sdt_no --> (TTCN)
+(TTCN) --> (Nhập OTP)
+(Nhập OTP) --> (Done)
+
+@enduml

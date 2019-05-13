@@ -1,0 +1,31 @@
+@startuml
+(Vì sao không login vào được ZaloPay) as (Resons)
+User -> (Resons)
+note "Đã xoá Zalo" as N_xoa_zalo
+note "Đã Khoá Zalo" as N_khoa_zalo
+note "Mất số DT Zalo" as N_matDT_zalo
+note "Quên mất khẩu Zalo" as N_quenMK_zalo
+note "Đã thử hết các cách nhưng không thể lấy lại TK Zalo" as N_zalo
+
+(Resons) .. N_xoa_zalo
+N_xoa_zalo --> (FAQ lấy lại Zalo đã xoá)
+(Resons) .. N_khoa_zalo
+N_khoa_zalo --> (FAQ mở khoá Zalo)
+(Resons) .. N_matDT_zalo
+N_matDT_zalo --> (FAQ lấy lại tài khoản Zalo)
+(Resons) .. N_quenMK_zalo
+N_quenMK_zalo --> (FAQ lấy lại MK Zalo)
+
+
+(FAQ lấy lại Zalo đã xoá) .. N_zalo
+(FAQ mở khoá Zalo) .. N_zalo
+(FAQ lấy lại tài khoản Zalo) .. N_zalo
+(FAQ lấy lại MK Zalo) .. N_zalo
+N_zalo --> (FAQ chọn hỗ trợ từ ZaloPay)
+
+
+note "-Lấy lại số DT là gì?\n-Thanh lý số dư là gì?\n-Mở khoá tài khoản là gì?\n-Huỷ liên kết thẻ là gì?" as N_support
+(FAQ chọn hỗ trợ từ ZaloPay) .. N_support
+
+
+@enduml
